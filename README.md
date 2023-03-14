@@ -20,7 +20,6 @@
 </details>
 
 
-
 <!-- ABOUT THE PROJECT -->
 ## О проекте
 
