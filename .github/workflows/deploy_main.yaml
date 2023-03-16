@@ -30,6 +30,7 @@ jobs:
         with:
           vault_key: ${{ secrets.ANSIBLE_VAULT_PASSWORD }}
           command: "ansible-vault decrypt deploy/.env"
+      - name: clone code
       - uses: appleboy/scp-action@master
         with:
           host: ${{ secrets.HOST }}
@@ -38,4 +39,21 @@ jobs:
           source: "deploy/*"
           target: "diploma_11"
           strip_components: 1
-
+      - name: run compose
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            cd diploma_11
+            docker-compose pull
+            docker-compose up -d
+      - name: cleanup
+      - uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          password: ${{ secrets.SSH_PASSWORD }}
+          script: |
+            docker system prune -a -f
