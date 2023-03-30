@@ -21,7 +21,8 @@ from todolist import settings
 urlpatterns = [
     path("core/", include(('core.urls', 'todolist.core'))),
     path("admin/", admin.site.urls),
-    path("oauth/", include("social_django.urls", namespace="social"))
+    path("oauth/", include("social_django.urls", namespace="social")),
+    path("goals/", include("goals.urls")),
 ]
 
 if settings.DEBUG:
