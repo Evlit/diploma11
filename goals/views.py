@@ -6,10 +6,46 @@ from rest_framework import permissions
 from rest_framework.pagination import LimitOffsetPagination
 
 from goals.filters import GoalDateFilter
-from goals.models import GoalCategory, Goal, GoalComment
-from goals.permissions import CommentPermissions
+from goals.models import GoalCategory, Goal, GoalComment, Board, BoardParticipant
+from goals.permissions import CommentPermissions, BoardPermissions, GoalCategoryPermission, GoalPermissions
 from goals.serializers import GoalCreateSerializer, GoalCategorySerializer, CategoryCreateSerializer, GoalSerializer, \
-    CommentCreateSerializer, CommentSerializer
+    CommentCreateSerializer, CommentSerializer, BoardCreateSerializer, BoardListSerializer, BoardSerializer
+
+
+class BoardCreateView(CreateAPIView):
+    model = Board
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = BoardCreateSerializer
+
+    def perform_create(self, serializer):
+        BoardParticipant.objects.create(user=self.request.user, board=serializer.save())
+
+
+class BoardListView(ListAPIView):
+    model = Board
+    permission_classes = [permissions.IsAuthenticated]
+    pagination_class = LimitOffsetPagination
+    serializer_class = BoardListSerializer
+    filter_backends = [OrderingFilter]
+    ordering = ["title"]
+
+    def get_queryset(self):
+        return Board.objects.filter(participants__user__id=self.request.user.id, is_deleted=False)
+
+
+class BoardView(RetrieveUpdateDestroyAPIView):
+    model = Board
+    permission_classes = [BoardPermissions]
+    serializer_class = BoardSerializer
+
+    def get_queryset(self):
+        return Board.objects.prefetch_related('participants__user').filter(is_deleted=False)
+
+    def perform_destroy(self, instance: Board) -> None:
+        with transaction.atomic():
+            Board.objects.filter(id=instance.id).update(is_deleted=True)
+            instance.categories.update(is_deleeted=True)
+            Goal.objects.filter(category__board=instance).update(status=Goal.Status.archived)
 
 
 class GoalCategoryCreateView(CreateAPIView):
@@ -36,7 +72,7 @@ class GoalCategoryListView(ListAPIView):
 
 class GoalCategoryView(RetrieveUpdateDestroyAPIView):
     model = GoalCategory
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [GoalCategoryPermission]
     serializer_class = GoalCategorySerializer
 
     def get_queryset(self):
@@ -76,7 +112,7 @@ class GoalListView(ListAPIView):
 
 class GoalView(RetrieveUpdateDestroyAPIView):
     model = Goal
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [GoalPermissions]
     serializer_class = GoalSerializer
 
     def get_queryset(self):
