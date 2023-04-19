@@ -23,6 +23,13 @@ services:
       db:
         condition: service_healthy
 
+  bot:
+    image: evlit/diploma11:latest
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+
   collect_static:
     image: evlit/diploma11:latest
     env_file: .env
@@ -33,7 +40,7 @@ services:
 
 
   frontend:
-    image: sermalenk/skypro-front:lesson-37
+    image: sermalenk/skypro-front:lesson-38
     ports:
       - "80:80"
     depends_on:
