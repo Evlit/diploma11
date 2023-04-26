@@ -5,6 +5,7 @@
 !core/**
 !todolist/**
 !goals/**
+!bot/**
 !manage.py
 !entrypoint.sh
 !poetry.lock

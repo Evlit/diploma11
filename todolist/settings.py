@@ -4,6 +4,8 @@ from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 from envparse import env
+# import factory
+# factory.Faker._DEFAULT_LOCALE = 'ru_Ru'
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 ENV_PATH = BASE_DIR.joinpath('.env')

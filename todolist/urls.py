@@ -22,7 +22,7 @@ urlpatterns = [
     path("core/", include(('core.urls', 'todolist.core'))),
     path("admin/", admin.site.urls),
     path("oauth/", include("social_django.urls", namespace="social")),
-    path("goals/", include("goals.urls")),
+    path("goals/", include(("goals.urls", 'todolist.goals'))),
     path("bot/", include("bot.urls")),
 ]
 
