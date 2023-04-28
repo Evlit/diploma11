@@ -25,10 +25,12 @@ services:
 
   bot:
     image: evlit/diploma11:latest
+    restart: on-failure
     env_file: .env
     depends_on:
       db:
         condition: service_healthy
+    command: python3 manage.py runbot
 
   collect_static:
     image: evlit/diploma11:latest
